@@ -1,0 +1,28 @@
+- hosts: all
+  gather_facts: false
+  vars:
+    keypair_name: afaivre
+    instance_type: t2.micro
+    ami_id:
+      id: "ami-03b755af568109dc3"
+    aws_region: eu-west-3
+    vpc_subnet_id: subnet-0159d8a30ce664780
+    security_group: 
+      group_id: sg-03ec976a71592edca
+
+  tasks:
+    - name: Launch an EC2 Instance
+      ec2_instance:
+        name: test_afaivre_ansible
+        key_name: "{{ keypair_name }}"
+        instance_type: "{{ instance_type }}"
+        image: "{{ ami_id }}"
+        wait: true
+        wait_timeout: 500
+        region: "{{ aws_region }}"
+        vpc_subnet_id: "{{ vpc_subnet_id }}"
+      register: test
+
+    - name: debug
+      debug:
+        var: test

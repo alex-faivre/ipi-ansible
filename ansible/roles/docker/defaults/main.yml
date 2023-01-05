@@ -1,0 +1,18 @@
+---
+# defaults file for docker
+
+available_actions:
+  - "install"
+  - "pull_image"
+
+docker_state:
+  started: start
+  stopped: stop
+  restarted: restart
+  reloaded: reload
+
+docker_enable_at_boot:
+  "yes": enable
+  "no": disable
+  "true": enable
+  "false": disable

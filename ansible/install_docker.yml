@@ -1,0 +1,9 @@
+- hosts: all
+  gather_facts: true
+  become: true
+  vars:
+    docker_image:
+      name: tinion/terraform-training
+  roles:
+    - { role: docker , state: started , enabled: "true" , trigger_action: install }
+    - { role: docker , trigger_action: pull_image }

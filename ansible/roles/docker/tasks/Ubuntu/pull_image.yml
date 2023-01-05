@@ -1,0 +1,11 @@
+- name: "[pull_image] - Launch pull_image_requirements.yml"
+  ansible.builtin.include_tasks: "pull_image_requirements.yml"
+
+- name: "[pull_image] - Pull docker image"
+  community.general.docker_image:
+    name: "{{ docker_image.name | mandatory }}"
+    source: "{{ docker_image.source | default('pull') }}"
+    state: "{{ docker_image.state | default('present') }}"
+    tag: "{{ docker_image.tag | default(omit) }}"
+  when:
+    - docker_image.name is defined

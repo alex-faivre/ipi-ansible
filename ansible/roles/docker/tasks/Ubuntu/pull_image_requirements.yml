@@ -1,0 +1,5 @@
+- name: "[pull_image_requirements] - Check if docker_image is defined"
+  assert:
+    that: "docker_image.name is defined"
+    success_msg: "Docker image is defined"
+    fail_msg: "You must set the docker_image['name']"

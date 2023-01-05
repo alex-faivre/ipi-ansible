@@ -1,0 +1,23 @@
+- name: Launch specific actions
+  block:
+    - name: "[main_requirements] - Check requirements"
+      ansible.builtin.include_tasks: "main_requirements.yml"
+
+    - name: "[main_requirements] - Launch task {{ ansible_distribution }}/{{ trigger_action }}"
+      ansible.builtin.include_tasks: "{{ ansible_distribution }}/{{ trigger_action }}.yml"
+      when: trigger_action in available_actions
+  when:
+    - trigger_action is defined
+    - ansible_distribution is defined
+
+- name: "[main] - {{ docker_state[state] }} Docker"
+  ansible.builtin.service:
+    name: docker
+    state: "{{ state }}"
+  when: state is defined
+
+- name: "[main] - {{ docker_enable_at_boot[enabled] }} Docker at boot"
+  ansible.builtin.service:
+    name: docker
+    enabled: "{{ enabled }}"
+  when: enabled is defined

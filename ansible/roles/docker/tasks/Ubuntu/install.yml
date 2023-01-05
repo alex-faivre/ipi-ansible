@@ -1,0 +1,65 @@
+- name: "[install] - Update packages"
+  ansible.builtin.apt:
+    upgrade: yes
+    update_cache: yes
+    cache_valid_time: "{{ force_update is defined | ternary(omit , '3600') }}"
+
+- name: "[install] - Install required packages"
+  ansible.builtin.apt:
+    name: "{{ package }}"
+    state: present
+  loop: "{{ distribution[ansible_distribution].required_packages }}"
+  loop_control:
+    loop_var: package
+
+# Feature before explain in python language
+#
+# for package in distribution[ansible_distribution].required_packages:
+#   if package not installed:
+#     install_package(version=latest_in_system)
+#   else:
+#     if state == 'present':
+#       return("SUCCESS")
+#     else:
+#       update_package_on_latest_on_system
+
+- name: "[install] - Add Docker GPG APT key"
+  ansible.builtin.apt_key:
+    url: "{{ distribution[ansible_distribution].docker_gpg.url }}/gpg"
+    state: present
+
+- name: "[install] - Add Docker repositories"
+  ansible.builtin.apt_repository:
+    repo: "deb {{ distribution[ansible_distribution].docker_gpg.url }} {{ ansible_distribution_release }} stable"
+    state: present
+
+- name: "[install] - Install Docker packages"
+  ansible.builtin.apt:
+    name: "{{ docker_package }}"
+    state: present
+  loop: "{{ distribution[ansible_distribution].docker_packages }}"
+  loop_control:
+    loop_var: docker_package
+
+- name: "[install] - Install Docker-compose packages"
+  ansible.builtin.apt:
+    name: "{{ docker_compose_package }}"
+    state: present
+  loop: "{{ distribution[ansible_distribution].docker_compose.packages }}"
+  loop_control:
+    loop_var: docker_compose_package
+  when: distribution[ansible_distribution].docker_compose.install
+  
+- name: "[install] - Install Docker module for Python"
+  ansible.builtin.pip:
+    name: "{{ pip_package }}"
+  loop: "{{ distribution[ansible_distribution].pip_libraries }}"
+  loop_control:
+    loop_var: pip_package
+
+- name: "[install] - Add {{ user_on_remote_device }} to docker group"
+  ansible.builtin.user:
+    name: "{{ user_on_remote_device }}"
+    append: true
+    groups: docker
+  when: user_on_remote_device is defined

@@ -1,0 +1,50 @@
+- hosts: all
+  gather_facts: true
+  become: true
+
+  tasks:
+
+    - name: block to create and destroy container after validation
+      block:
+        - name: setting up nginx container
+          ansible.builtin.docker_container:
+            name: nginx-test
+            image: nginx:latest
+            state: started
+            restart_policy: unless-stopped
+            published_ports:
+              - 9090:80
+          register: container_creation
+
+        - name: define set_fact to map container status to previous output
+          ansible.builtin.set_fact:
+            container_status: "{{ container_creation.container.State.Status }}"
+
+        - name: Curl on URL to check if container is reachable from internet
+          ansible.builtin.uri:
+            url: "http://localhost:9090"
+            status_code: 201
+
+        - name: Display message
+          debug:
+            msg: "All works !"
+
+      rescue:
+
+        - name: If previous call not working, trigger me
+          ansible.builtin.uri:
+            url: "http://localhost:9090"
+            status_code: 200
+
+        - name: display message before remove container
+          debug:
+            msg: "All is working, you may remove container"
+
+        - name: pause 1 minute
+          pause:
+            minutes: 1
+
+        - name: remove nginx container
+          ansible.builtin.docker_container:
+            name: nginx-test
+            state: absent

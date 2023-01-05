@@ -1,0 +1,28 @@
+---
+# vars file for docker
+
+distribution:
+  Ubuntu:
+    required_packages:
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+      - apt-transport-https
+      - software-properties-common
+      - python3-pip
+      - python3-setuptools
+    docker_packages:
+      - docker
+      - docker.io
+    pip_libraries:
+      - docker
+    docker_gpg:
+      url: "https://download.docker.com/linux/ubuntu"
+    docker_compose:
+      install: true
+      packages: 
+        - docker-compose
+
+# To add your user to Docker group, set this var:
+# user_on_remote_device: my_user
